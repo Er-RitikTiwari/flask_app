@@ -10,32 +10,26 @@ jobs:
             run: az login --tenant add67cd2-c8b2-416c-b171-b61b22be92f4
 
         -   name: accessing aks_cluster
-            run: |
-                az aks get-credentials --resource-group k8-rg --name k8-cluster
+            run: az aks get-credentials --resource-group trial-aks --name ritik-cluster --overwrite-existing
+                
         
         -   name: Login to Docker Hub
             uses: docker/login-action@v3
             with:
-              username: ${{ secrets.docker_username }}
-              password: ${{ secrets.docker_password }}
+              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_PASSWORD }}
         
         -   name: check docker login
             run: docker info
         
         -   name: build and tag image
             run: |
-                docker build -t assignment-image .
-                docker tag assignment-image ${{ secrets.docker_username }}/assignment:latest
+                docker build -t flask-app .
+                
         
         -   name: push docker image
-            run: docker push ${{ secrets.docker_username }}/assignment:latest
+            run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
 
-        -   name: update docker image
-            uses: silverlyra/latest-image-action
-            with:
-              repository: ${{ secrets.docker_username }}/assignment
-              candidate-tag: ${{ github.ref_name }}
-          
 
         -   name: changing k8 manifests sql
             run:  |
